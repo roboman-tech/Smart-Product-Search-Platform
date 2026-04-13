@@ -1,0 +1,172 @@
+@import "tailwindcss";
+
+/* ─── Custom design tokens ──────────────────────────────────────────────── */
+@theme {
+  /* Page & surface backgrounds */
+  --color-canvas:   #06091a;
+  --color-surface:  #0b1028;
+  --color-raised:   #101c3a;
+  --color-overlay:  #0e1530;
+
+  /* Brand (violet) */
+  --color-brand:       #7c3aed;
+  --color-brand-light: #8b5cf6;
+  --color-brand-soft:  #a78bfa;
+  --color-brand-dim:   #6d28d9;
+
+  /* Text */
+  --color-ink:    #eef2ff;
+  --color-text:   #c7d2ee;
+  --color-muted:  #7b8ab8;
+  --color-faint:  #3a4a6e;
+
+  /* Borders */
+  --color-line:   #1b2a50;
+  --color-stripe: #131f3c;
+
+  /* Status */
+  --color-success: #10b981;
+  --color-danger:  #f87171;
+  --color-warning: #fbbf24;
+
+  /* Typography */
+  --font-family-sans: "Inter", system-ui, -apple-system, sans-serif;
+}
+
+/* ─── Base ──────────────────────────────────────────────────────────────── */
+@layer base {
+  *, *::before, *::after { box-sizing: border-box; }
+
+  html {
+    font-family: var(--font-family-sans);
+    background-color: var(--color-canvas);
+    color: var(--color-text);
+    -webkit-font-smoothing: antialiased;
+    scroll-behavior: smooth;
+  }
+
+  body { margin: 0; min-height: 100vh; }
+
+  a { color: inherit; text-decoration: none; }
+  a:hover { text-decoration: none; }
+
+  img { display: block; max-width: 100%; }
+
+  ::-webkit-scrollbar { width: 6px; height: 6px; }
+  ::-webkit-scrollbar-track { background: var(--color-canvas); }
+  ::-webkit-scrollbar-thumb {
+    background: var(--color-faint);
+    border-radius: 999px;
+  }
+  ::-webkit-scrollbar-thumb:hover { background: var(--color-muted); }
+}
+
+/* ─── Keyframes ─────────────────────────────────────────────────────────── */
+@keyframes shimmer {
+  0%   { background-position:  200% 0; }
+  100% { background-position: -200% 0; }
+}
+
+@keyframes fadeInUp {
+  from { opacity: 0; transform: translateY(16px); }
+  to   { opacity: 1; transform: translateY(0);    }
+}
+
+@keyframes pulse-glow {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(124, 58, 237, 0); }
+  50%       { box-shadow: 0 0 20px 4px rgba(124, 58, 237, 0.35); }
+}
+
+@keyframes float {
+  0%, 100% { transform: translateY(0px);   }
+  50%       { transform: translateY(-6px);  }
+}
+
+/* ─── Utility classes ───────────────────────────────────────────────────── */
+@layer utilities {
+  /* Shimmer skeleton */
+  .skeleton {
+    background: linear-gradient(
+      90deg,
+      var(--color-raised) 25%,
+      var(--color-stripe) 50%,
+      var(--color-raised) 75%
+    );
+    background-size: 200% 100%;
+    animation: shimmer 1.8s infinite;
+  }
+
+  /* Entrance animation */
+  .animate-fade-up {
+    animation: fadeInUp 0.45s ease both;
+  }
+
+  /* Pulse glow CTA */
+  .animate-pulse-glow {
+    animation: pulse-glow 2.5s ease-in-out infinite;
+  }
+
+  /* Horizontal scroll row (hidden scrollbar) */
+  .scroll-row {
+    display: flex;
+    gap: 1rem;
+    overflow-x: auto;
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+    padding-bottom: 4px;
+  }
+  .scroll-row::-webkit-scrollbar { display: none; }
+
+  /* Hero radial glow backdrop */
+  .hero-glow {
+    background:
+      radial-gradient(ellipse 70% 45% at 50% -10%, rgba(124, 58, 237, 0.28), transparent),
+      radial-gradient(ellipse 45% 30% at 85% 55%,  rgba(79,  70, 229, 0.18), transparent),
+      radial-gradient(ellipse 55% 35% at 10% 70%,  rgba(109, 40, 217, 0.14), transparent),
+      var(--color-canvas);
+  }
+
+  /* Card glass border */
+  .card {
+    background-color: var(--color-surface);
+    border: 1px solid var(--color-line);
+    border-radius: 1rem;
+    transition: border-color 0.2s, box-shadow 0.2s, transform 0.2s;
+  }
+  .card:hover {
+    border-color: rgba(139, 92, 246, 0.35);
+    box-shadow: 0 8px 32px -8px rgba(124, 58, 237, 0.25), 0 2px 8px -2px rgba(0,0,0,0.5);
+    transform: translateY(-2px);
+  }
+
+  /* Input focus glow */
+  .input-glow:focus {
+    outline: none;
+    border-color: var(--color-brand);
+    box-shadow: 0 0 0 3px rgba(124, 58, 237, 0.2);
+  }
+
+  /* Gradient brand text */
+  .brand-text {
+    background: linear-gradient(135deg, #a78bfa, #818cf8);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+
+  /* Tab underline indicator */
+  .tab-active {
+    position: relative;
+    color: var(--color-ink);
+  }
+  .tab-active::after {
+    content: '';
+    position: absolute;
+    bottom: -1px;
+    left: 0;
+    right: 0;
+    height: 2px;
+    border-radius: 999px;
+    background: var(--color-brand);
+  }
+}
