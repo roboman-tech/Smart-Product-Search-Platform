@@ -46,9 +46,9 @@ function normalizeAxiosError(error: AxiosError): ApiError {
   return new ApiError(message, status, body);
 }
 
-const fromEnv = import.meta.env.VITE_API_BASE_URL?.replace(/\/$/, "");
-const baseURL =
-  fromEnv || (import.meta.env.DEV ? "" : "http://127.0.0.1:8000");
+// In dev Vite proxies /api/* → localhost:8000, so baseURL stays "".
+// In production VITE_API_BASE_URL is injected by Vercel env vars.
+const baseURL = (import.meta.env.VITE_API_BASE_URL ?? "").replace(/\/$/, "");
 
 export const apiClient = axios.create({
   baseURL,
