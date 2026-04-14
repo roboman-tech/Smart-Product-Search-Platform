@@ -42,9 +42,11 @@ export function useSearchResults(state: SearchState): UseSearchResultsResult {
     try {
       const res = await searchProducts(apiParams);
       setData(res);
-      void logSearch(res.query || state.q?.trim() || "", res.total).catch(
-        () => {}
-      );
+      // Pass `?? 0` so result_count is always a finite number, never undefined.
+      void logSearch(
+        res.query || state.q?.trim() || "",
+        res.total ?? 0
+      ).catch(() => {});
     } catch (e) {
       setError(e instanceof Error ? e : new Error("Search failed"));
     } finally {
