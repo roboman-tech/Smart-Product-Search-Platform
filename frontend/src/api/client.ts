@@ -41,20 +41,22 @@ function normalizeAxiosError(error: AxiosError): ApiError {
   const status = error.response?.status;
   const body = error.response?.data;
   const fromBody = body ? messageFromDrfBody(body) : null;
-  const message =
-    fromBody ?? error.message ?? "Request failed";
+  const message = fromBody ?? error.message ?? "Request failed";
   return new ApiError(message, status, body);
 }
 
-// In dev Vite proxies /api/* → localhost:8000, so baseURL stays "".
-// In production VITE_API_BASE_URL is injected by Vercel env vars.
+// In dev, Vite proxies /api/* → localhost:8000, so baseURL stays "".
+// In production, VITE_API_BASE_URL is baked in from frontend/.env.production.
 const baseURL = (import.meta.env.VITE_API_BASE_URL ?? "").replace(/\/$/, "");
 
 export const apiClient = axios.create({
   baseURL,
+  // Only Accept — NOT Content-Type.
+  // Setting Content-Type as a default triggers a CORS preflight OPTIONS request
+  // for every GET (because application/json is a non-simple header per the CORS spec).
+  // Axios sets Content-Type automatically when a request body is present (POST/PUT/PATCH).
   headers: {
     Accept: "application/json",
-    "Content-Type": "application/json",
   },
   timeout: 30_000,
 });

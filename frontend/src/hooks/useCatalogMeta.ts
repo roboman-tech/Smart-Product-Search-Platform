@@ -11,6 +11,10 @@ export interface UseCatalogMetaResult {
 
 /**
  * Loads category and brand lists for filter UI (cached heavily on the server).
+ *
+ * Fetches are kept independent: a failure on one endpoint does not prevent the
+ * other from populating. This avoids the previous Promise.all pattern where a
+ * CORS/network error on /api/categories/ would silently clear brands too.
  */
 export function useCatalogMeta(): UseCatalogMetaResult {
   const [categories, setCategories] = useState<Category[]>([]);
@@ -22,25 +26,35 @@ export function useCatalogMeta(): UseCatalogMetaResult {
     let cancelled = false;
     setLoading(true);
     setError(null);
-    Promise.all([fetchCategories(), fetchBrands()])
-      .then(([cats, brs]) => {
-        if (!cancelled) {
-          setCategories(cats);
-          setBrands(brs);
-        }
+
+    const catPromise = fetchCategories()
+      .then((cats) => {
+        if (!cancelled) setCategories(cats);
       })
       .catch((e: unknown) => {
         if (!cancelled) {
-          setError(
-            e instanceof Error ? e : new Error("Failed to load filter options")
-          );
-        }
-      })
-      .finally(() => {
-        if (!cancelled) {
-          setLoading(false);
+          const err = e instanceof Error ? e : new Error("Failed to load categories");
+          console.error("[useCatalogMeta] categories:", err.message);
+          setError(err);
         }
       });
+
+    const brandPromise = fetchBrands()
+      .then((brs) => {
+        if (!cancelled) setBrands(brs);
+      })
+      .catch((e: unknown) => {
+        if (!cancelled) {
+          const err = e instanceof Error ? e : new Error("Failed to load brands");
+          console.error("[useCatalogMeta] brands:", err.message);
+          setError(err);
+        }
+      });
+
+    Promise.allSettled([catPromise, brandPromise]).finally(() => {
+      if (!cancelled) setLoading(false);
+    });
+
     return () => {
       cancelled = true;
     };
